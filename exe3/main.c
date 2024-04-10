@@ -25,19 +25,32 @@ void data_task(void *p) {
 
 void process_task(void *p) {
     int data = 0;
+    int lastFiveValues[5] = {0}; // Array to store the last five values
 
     while (true) {
-        if (xQueueReceive(xQueueData, &data, 100)) {
-            // implementar filtro aqui!
+        if (xQueueReceive(xQueueData, &data, portMAX_DELAY)) {
+            // Shift the old values
+            for (int i = 0; i < 4; i++) {
+                lastFiveValues[i] = lastFiveValues[i + 1];
+            }
+            // Insert the new value at the end of the array
+            lastFiveValues[4] = data;
 
+            // Print the last five values
+            printf("Mean of the five values in the queue: ");
+            int media = 0;
+            for (int i = 0; i < 5; i++) {
+                media += lastFiveValues[i];
+            }
+            printf("%d", media/5);
+            printf("\n");
 
-
-
-            // deixar esse delay!
+            // Keep this delay as per your requirement
             vTaskDelay(pdMS_TO_TICKS(50));
         }
     }
 }
+
 
 int main() {
     stdio_init_all();
